@@ -1,0 +1,313 @@
+kafka_health_alert
+ami-06c41d8b5a6ddd3c2
+bin/zookeeper-server-start.sh config/zookeeper.properties
+bin/kafka-server-start.sh config/server.properties
+
+bin/kafka-topics.sh --delete --topic PatientHealthNotification --bootstrap-server localhost:9092
+bin/kafka-topics.sh --delete --topic Patients-Vital-Info --bootstrap-server localhost:9092
+bin/kafka-topics.sh --delete --topic Health-alert-data --bootstrap-server localhost:9092
+
+bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic Patients-Vital-Info
+bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic PatientHealthNotification
+bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+
+sudo yum update
+sudo pip3 install kafka-python
+sudo pip3 install mysql-connector
+sudo pip3 install boto3
+
+
+python3 kafka_produce_patient_vitals.py
+
+[
+  {
+    "Classification": "yarn-site",
+    "Properties": {
+      "yarn.nodemanager.resource.memory-mb": "10240",
+      "yarn.scheduler.maximum-allocation-mb": "8192"
+    }
+  }
+]
+
+spark = SparkSession.builder \
+    .appName("HealthAlert System") \
+    .config("spark.sql.warehouse.dir", "/user/hive/warehouse") \
+    .config("spark.sql.hive.metastore.jars", "/usr/local/hive/lib") \
+    .config("spark.driver.extraClassPath", "/usr/lib/hive/lib/hive-hcatalog-core-3.1.3-amzn-3.jar:/usr/lib/hive/lib/hive-hbase-handler-3.1.3-amzn-3.1.jar") \
+    .config("spark.executor.extraClassPath", "/usr/lib/hive/lib/hive-hcatalog-core-3.1.3-amzn-3.jar:/usr/lib/hive/lib/hive-hbase-handler-3.1.3-amzn-3.1.jar") \
+    .enableHiveSupport() \
+    .getOrCreate()
+
+
+sudo cp /usr/lib/hive/lib/hive-hbase-handler* /usr/lib/hbase/lib/
+sudo cp /usr/lib/hive/lib/hive-hbase-handler* /usr/lib/spark/jars/
+sudo cp /usr/lib/hbase/lib/hbase-common* /usr/lib/spark/jars/
+sudo cp /usr/lib/hbase/lib/hbase-client* /usr/lib/spark/jars/
+sudo cp /usr/lib/hbase/lib/hbase-server* /usr/lib/spark/jars/
+sudo cp /usr/lib/hbase/lib/hbase-protocol* /usr/lib/spark/jars/
+sudo cp /usr/lib/hbase/lib/client-facing-thirdparty/htrace-core4-4.2.0-incubating* /usr/lib/spark/jars/
+sudo cp /usr/lib/hbase/lib/hbase-metrics* /usr/lib/spark/jars/
+sudo cp /usr/lib/hbase/lib/metrics-core-3.2.6* /usr/lib/spark/jars/
+
+sudo chown -R hadoop:hadoop /var/log/hbase/
+
+find / -name 'hive-hbase-handler*' 2>/dev/null
+find / -name 'hbase-client*' 2>/dev/null
+find / -name 'hbase-site.xml' 2>/dev/null
+
+spark-submit --jars /usr/lib/hbase/hbase-client-2.4.15-amzn.jar,/usr/lib/hbase/hbase-common-2.4.15-amzn.jar,/usr/lib/hbase/lib/hbase-server-2.4.15-amzn-0.1.jar --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.3.1 kafka_spark_generate_alerts.py 44.215.14.94:9092 PatientHealthNotification
+
+sudo cp /usr/lib/hive/lib/hive-hbase-handler-3.1.3-amzn-3.1.jar /usr/lib/hbase/lib/
+sudo cp /usr/lib/hive/lib/hive-hbase-handler-3.1.3-amzn-3.jar /usr/lib/spark/jars/
+sudo cp /usr/lib/hbase/hbase-common-2.4.15-amzn.jar /usr/lib/spark/jars/
+sudo cp /usr/lib/hbase/hbase-client-2.4.15-amzn.jar /usr/lib/spark/jars/
+sudo cp /usr/lib/hbase/lib/hbase-server-2.4.15-amzn-0.jar /usr/lib/spark/jars/
+sudo cp /usr/lib/hbase/lib/hbase-protocol-2.4.15-amzn-0.jar /usr/lib/spark/jars/
+sudo cp /usr/lib/hbase/lib/hbase-metrics-2.4.15-amzn-0.jar /usr/lib/spark/jars/
+sudo cp /usr/lib/hbase/lib/metrics-core-3.2.6.jar /usr/lib/spark/jars/
+sudo cp /usr/lib/hbase/lib/client-facing-thirdparty/htrace-core4-4.2.0-incubating.jar /usr/lib/spark/jars/
+
+spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.3.1 kafka_spark_patient_vitals.py
+
+hadoop fs -mkdir -p /user/hadoop/health-alert/checkpoint/
+hadoop fs -mkdir -p /user/hadoop/health-alert/patients-vital-info/
+hadoop fs -put /home/hadoop/patients_vital_info/* /user/hadoop/health-alert/patients-vital-info/
+hadoop fs -ls /user/hadoop/health-alert/patients-vital-info/
+
+hadoop fs -cat /user/hadoop/health-alert/patients-vital-info/part-00000-fe5e7229-9318-4ac6-be53-d873299c21c9-c000.snappy.parquet
+
+hdfs dfs -ls /user/hadoop/health-alert/patients-vital-info/
+hdfs dfs -rm /user/hadoop/health-alert/patients-vital-info/_spark_metadata/*
+Add jar /usr/lib/hive-hcatalog/share/hcatalog/hive-hcatalog-core-2.3.6-amzn-2.jar;
+
+set hive.execution.engine=MR;
+
+Add jar /usr/lib/hive-hcatalog/share/hcatalog/hive-hcatalog-core-3.1.3-amzn-3.jar;
+set hive.execution.engine=spark;
+set hive.cli.print.header=true;
+set hive.cli.print.current.db=true;
+admin
+HUEadmin@123
+create database if not exists health comment "Health Alert System Capstone Project Database";
+
+use health;
+
+CREATE EXTERNAL TABLE health.patients_vital_info(
+customerId int,
+heartBeat int,
+bp int,
+message_time timestamp)
+STORED AS PARQUET
+LOCATION '/user/hadoop/health-alert/patients-vital-info/'
+TBLPROPERTIES ('parquet.compress'='SNAPPY');
+
+select * from health.patients_vital_info limit;
+
+create 'threshold_ref_hbase', 'attribute', 'limit', 'alert'
+
+describe 'threshold_ref_hbase' 
+
+put 'threshold_ref_hbase', '1', 'attribute:attribute', 'heartBeat'
+put 'threshold_ref_hbase', '1', 'limit:low_age_limit', '0'
+put 'threshold_ref_hbase', '1', 'limit:high_age_limit', '40'
+put 'threshold_ref_hbase', '1', 'limit:low_range_value', '0'
+put 'threshold_ref_hbase', '1', 'limit:high_range_value', '69'
+put 'threshold_ref_hbase', '1', 'alert:alert_flag', '1'
+put 'threshold_ref_hbase', '1', 'alert:alert_message', 'Low Heart Rate than Normal'
+
+put 'threshold_ref_hbase', '2', 'attribute:attribute', 'heartBeat'
+put 'threshold_ref_hbase', '2', 'limit:low_age_limit', '0'
+put 'threshold_ref_hbase', '2', 'limit:high_age_limit', '40'
+put 'threshold_ref_hbase', '2', 'limit:low_range_value', '70'
+put 'threshold_ref_hbase', '2', 'limit:high_range_value', '78'
+put 'threshold_ref_hbase', '2', 'alert:alert_flag', '0'
+put 'threshold_ref_hbase', '2', 'alert:alert_message', 'Normal'
+
+put 'threshold_ref_hbase', '3', 'attribute:attribute', 'heartBeat'
+put 'threshold_ref_hbase', '3', 'limit:low_age_limit', '0'
+put 'threshold_ref_hbase', '3', 'limit:high_age_limit', '40'
+put 'threshold_ref_hbase', '3', 'limit:low_range_value', '79'
+put 'threshold_ref_hbase', '3', 'limit:high_range_value', '9999'
+put 'threshold_ref_hbase', '3', 'alert:alert_flag', '1'
+put 'threshold_ref_hbase', '3', 'alert:alert_message', 'Higher Heart Rate than Normal'
+
+put 'threshold_ref_hbase', '4', 'attribute:attribute', 'bp'
+put 'threshold_ref_hbase', '4', 'limit:low_age_limit', '0'
+put 'threshold_ref_hbase', '4', 'limit:high_age_limit', '40'
+put 'threshold_ref_hbase', '4', 'limit:low_range_value', '0'
+put 'threshold_ref_hbase', '4', 'limit:high_range_value', '160'
+put 'threshold_ref_hbase', '4', 'alert:alert_flag', '1'
+put 'threshold_ref_hbase', '4', 'alert:alert_message', 'Low BP than Normal'
+
+put 'threshold_ref_hbase', '5', 'attribute:attribute', 'bp'
+put 'threshold_ref_hbase', '5', 'limit:low_age_limit', '0'
+put 'threshold_ref_hbase', '5', 'limit:high_age_limit', '40'
+put 'threshold_ref_hbase', '5', 'limit:low_range_value', '161'
+put 'threshold_ref_hbase', '5', 'limit:high_range_value', '220'
+put 'threshold_ref_hbase', '5', 'alert:alert_flag', '0'
+put 'threshold_ref_hbase', '5', 'alert:alert_message', 'Normal'
+
+put 'threshold_ref_hbase', '6', 'attribute:attribute', 'bp'
+put 'threshold_ref_hbase', '6', 'limit:low_age_limit', '0'
+put 'threshold_ref_hbase', '6', 'limit:high_age_limit', '40'
+put 'threshold_ref_hbase', '6', 'limit:low_range_value', '221'
+put 'threshold_ref_hbase', '6', 'limit:high_range_value', '9999'
+put 'threshold_ref_hbase', '6', 'alert:alert_flag', '1'
+put 'threshold_ref_hbase', '6', 'alert:alert_message', 'Higher BP than Normal'
+
+put 'threshold_ref_hbase', '7', 'attribute:attribute', 'heartBeat'
+put 'threshold_ref_hbase', '7', 'limit:low_age_limit', '41'
+put 'threshold_ref_hbase', '7', 'limit:high_age_limit', '100'
+put 'threshold_ref_hbase', '7', 'limit:low_range_value', '0'
+put 'threshold_ref_hbase', '7', 'limit:high_range_value', '65'
+put 'threshold_ref_hbase', '7', 'alert:alert_flag', '1'
+put 'threshold_ref_hbase', '7', 'alert:alert_message', 'Low Heart Rate than Normal'
+
+put 'threshold_ref_hbase', '8', 'attribute:attribute', 'heartBeat'
+put 'threshold_ref_hbase', '8', 'limit:low_age_limit', '41'
+put 'threshold_ref_hbase', '8', 'limit:high_age_limit', '100'
+put 'threshold_ref_hbase', '8', 'limit:low_range_value', '66'
+put 'threshold_ref_hbase', '8', 'limit:high_range_value', '73'
+put 'threshold_ref_hbase', '8', 'alert:alert_flag', '0'
+put 'threshold_ref_hbase', '8', 'alert:alert_message', 'Normal'
+
+put 'threshold_ref_hbase', '9', 'attribute:attribute', 'heartBeat'
+put 'threshold_ref_hbase', '9', 'limit:low_age_limit', '41'
+put 'threshold_ref_hbase', '9', 'limit:high_age_limit', '100'
+put 'threshold_ref_hbase', '9', 'limit:low_range_value', '74'
+put 'threshold_ref_hbase', '9', 'limit:high_range_value', '9999'
+put 'threshold_ref_hbase', '9', 'alert:alert_flag', '1'
+put 'threshold_ref_hbase', '9', 'alert:alert_message', 'Higher Heart Rate than Normal'
+
+put 'threshold_ref_hbase', '10', 'attribute:attribute', 'bp'
+put 'threshold_ref_hbase', '10', 'limit:low_age_limit', '41'
+put 'threshold_ref_hbase', '10', 'limit:high_age_limit', '100'
+put 'threshold_ref_hbase', '10', 'limit:low_range_value', '0'
+put 'threshold_ref_hbase', '10', 'limit:high_range_value', '150'
+put 'threshold_ref_hbase', '10', 'alert:alert_flag', '1'
+put 'threshold_ref_hbase', '10', 'alert:alert_message', 'Low BP than Normal'
+
+put 'threshold_ref_hbase', '11', 'attribute:attribute', 'bp'
+put 'threshold_ref_hbase', '11', 'limit:low_age_limit', '41'
+put 'threshold_ref_hbase', '11', 'limit:high_age_limit', '100'
+put 'threshold_ref_hbase', '11', 'limit:low_range_value', '151'
+put 'threshold_ref_hbase', '11', 'limit:high_range_value', '180'
+put 'threshold_ref_hbase', '11', 'alert:alert_flag', '0'
+put 'threshold_ref_hbase', '11', 'alert:alert_message', 'Normal'
+
+put 'threshold_ref_hbase', '12', 'attribute:attribute', 'bp'
+put 'threshold_ref_hbase', '12', 'limit:low_age_limit', '41'
+put 'threshold_ref_hbase', '12', 'limit:high_age_limit', '100'
+put 'threshold_ref_hbase', '12', 'limit:low_range_value', '181'
+put 'threshold_ref_hbase', '12', 'limit:high_range_value', '9999'
+put 'threshold_ref_hbase', '12', 'alert:alert_flag', '1'
+put 'threshold_ref_hbase', '12', 'alert:alert_message', 'Higher BP than Normal'
+
+scan 'threshold_ref_hbase'
+
+delete 'threshold_ref_hbase', '4', 'alert:alert_flag'
+get 'threshold_ref_hbase', '4', 'alert:alert_flag'
+
+CREATE EXTERNAL TABLE health.threshold_ref_hive(
+    ref_id INT,
+    attribute VARCHAR(20),
+    low_age_limit INT,
+    high_age_limit INT,
+    low_range_value INT,
+    high_range_value INT,
+    alert_flag INT,
+    alert_message VARCHAR(255))
+STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler'
+WITH SERDEPROPERTIES (
+    "hbase.columns.mapping" = ":key,
+    attribute:attribute,
+    limit:low_age_limit,
+    limit:high_age_limit,
+    limit:low_range_value,
+    limit:high_range_value,
+    alert:alert_flag,
+    alert:alert_message")
+TBLPROPERTIES ("hbase.table.name" = "threshold_ref_hbase");
+
+SELECT * FROM health.threshold_ref_hive
+ORDER BY ref_id ASC;
+
+SET hive.exec.reducers.bytes.per.reducer=256000000;
+SET hive.exec.reducers.max=1000;
+SET mapreduce.job.reduces=20;
+
+set spark.executor.memory=4g;
+set spark.executor.cores=2;
+
+
+wget https://de-mysql-connector.s3.amazonaws.com/mysql-connector-java-8.0.25.tar.gz
+tar xzfmysql-connector-java-8.0.25.tar.gz
+sudo cp ./mysql-connector-java-8.0.25/mysql-connector-java-8.0.25.jar /usr/lib/sqoop/lib/
+ls /usr/lib/sqoop/lib/mysql-connector-java-8.0.25.jar
+
+
+sqoopjob --create patientcontactimportinhdfs --import \
+--connect jdbc:mysql://upgraddetest.cyaielc9bmnf.us-east-1.rds.amazonaws.com/
+testdatabase\
+--username student \
+--password STUDENT123 \
+--table patients_information\
+--null-string '\\N' --null-non-string '\\N' \
+--where "patientid>0" \
+--target-dir/user/hadoop/health-alert/patients-contact-info \
+--incremental append --check-column patientid\
+-m 1
+
+sqoop job --create patientcontactimport -- import \
+--connect jdbc:mysql://upgraddetest.cyaielc9bmnf.us-east-1.rds.amazonaws.com/testdatabase \
+--username student \
+--password STUDENT123 \
+--table patients_information \
+--hive-import \
+--create-hive-table \
+--hive-table health.Patients_Contact_Info
+
+sqoop job –-list
+
+sqoop job --exec patientcontactimport
+
+SELECT * FROM health.patients_contact_info;
+5
+HB-
+STUDENT123sS
+
+hadoop fs -ls /user/hadoop/health-alert/patients-contact-info/
+hadoop fs -ls /user/hadoop/health-alert/checkpoint/
+
+cat /etc/hive/conf.dist/hive-site.xml
+.config("spark.sql.warehouse.dir", "/user/hive/warehouse") \
+.config("spark.hadoop.hive.metastore.uris", "thrift://ip-172-31-84-72.ec2.internal:9083") \
+.config("spark.hbase.host", "your_hbase_server") \
+.config("spark.hadoop.hbase.zookeeper.quorum", "ip-172-31-88-146.ec2.internal:2181") \
+
+spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.3.1 kafka_spark_patient_vitals.py
+
+spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.3.1 kafka_spark_generate_alerts.py
+
+spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.3.1 kafka_spark_generate_alerts.py 44.215.14.94:9092 PatientHealthNotification
+
+k-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.3.1,org.apache.hbase:hbase-client:2.2.3,org.apache.hbase:hbase-common:2.2.3,org.apache.hbase:hbase-server:2.2.3 kafka_spark_generate_alerts.py 44.215.14.94:9092 PatientHealthNotification
+
+
+spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.3.1 kafka_spark_generate_alerts.py 44.215.14.94:9092 PatientHealthNotification
+
+spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.3.1 kafka_spark_generate_alerts.py
+
+NOT REQUIRED
+
+create external table Capstone_Project.patients_contact_info(
+patientid int, 
+patientname varchar(255),
+patientaddress varchar(255),
+phone_number varchar(255),
+admitted_ward int,
+age int,
+other_details varchar(255));
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n'
+STORED AS TEXTFILE LOCATION '/user/hadoop/health-alert/patients-contact-info/';
